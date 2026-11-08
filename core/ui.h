@@ -40,9 +40,11 @@ typedef struct {
     char     country[32];  /* its country: from the site, or the board asks OpenStreetMap */
     float    range;        /* radius of the scope in the distance unit: zoomed by a finger, any value */
     uint8_t  ground;       /* 1: planes on the ground shown, 0: left out (a home next to an airport) */
+    uint8_t  host_pad[3];  /* keep the version 4 settings prefix at its 104-byte size */
+    char     host[128];    /* optional tar1090 base URL; empty: use the built-in free networks */
 } fr_cfg_t;
 
-#define FR_CFG_VERSION 4
+#define FR_CFG_VERSION 5
 void fr_cfg_defaults(fr_cfg_t *c);
 
 /* the radar look's options, all off until someone turns them on: the gear under the scope, the

@@ -93,6 +93,10 @@ The map under them comes from OpenStreetMap.
   the board goes to OpenStreetMap's Nominatim to be found.
 - The password and the Flightradar24 key go into the board and stay there. The board never shows them
   and never sends them back.
+- For a local tar1090 feed, send `OWLOS SET {"src":"free","host":"http://10.1.10.43"}` over the
+  serial connection. The board appends `/tar1090/data/aircraft.json` and uses only that feed; it
+  makes no ADSB.LOL or ADSB.FI requests, including for watched planes. Send `"host":""` to return
+  to the built-in free networks.
 
 ## Where to tap
 

@@ -130,6 +130,13 @@ static void free_url(const fr_cfg_t *c, int server, char *url, int cap)
     snprintf(url, (size_t)cap, FREE_URL[server], (double)vague(c->lat), (double)vague(c->lon), nm);
 }
 
+static void tar1090_url(const fr_cfg_t *c, char *url, int cap)
+{
+    size_t n = strlen(c->host);
+    snprintf(url, (size_t)cap, "%s%s%s", c->host,
+             n && c->host[n - 1] == '/' ? "" : "/", "tar1090/data/aircraft.json");
+}
+
 static void fr24_url(const fr_cfg_t *c, char *url, int cap)
 {
     float lat = vague(c->lat), lon = vague(c->lon);
@@ -536,13 +543,14 @@ static void fetch_task(void *arg)
     uint32_t down = 0;                                 // since when the WiFi is not there
     for (;;) {
         fr_cfg_t c;
-        int configured, fr24;
+        int configured, fr24, custom;
         static char key[sizeof s_sec.key];
         home_find();                                   // first: the planes are asked round the new home
         lock();
         c = s_cfg;
         configured = s_sec.ssid[0] != 0;
         fr24 = c.source == SRC_FR24 && s_sec.key[0];
+        custom = !fr24 && c.host[0];
         memcpy(key, s_sec.key, sizeof key);
         sky_hide_ground(&s_sky, !c.ground);            // the screen's or the site's setting, at once
         unlock();
@@ -596,7 +604,9 @@ static void fetch_task(void *arg)
         } else {
             int server = next < 0 ? (c.server < FREE_SERVERS ? c.server : 0) : next;
             if (fr24) fr24_url(&c, url, sizeof url);
+            else if (custom) tar1090_url(&c, url, sizeof url);
             else free_url(&c, server, url, sizeof url);
+            const char *provider = fr24 ? "FR24" : custom ? "TAR1090" : FREE_NAME[server];
             static char said[sizeof url];
             if (strcmp(url, said)) {                   // what goes out, once each time it changes (no key in it)
                 ESP_LOGI(TAG, "asking %s", url);
@@ -619,7 +629,7 @@ static void fetch_task(void *arg)
                     s_sky.status = SKY_PARSE;
                     snprintf(s_sky.note, sizeof s_sky.note, "STRANGE ANSWER");
                 } else {
-                    snprintf(s_server, sizeof s_server, "%s", fr24 ? "FLIGHTRADAR24" : FREE_NAME[server]);
+                    snprintf(s_server, sizeof s_server, "%s", fr24 ? "FLIGHTRADAR24" : custom ? "TAR1090" : FREE_NAME[server]);
                     s_fetched = now;
                     char came[40] = "";
                     uint32_t pick = 0;
@@ -634,23 +644,23 @@ static void fetch_task(void *arg)
                 }
             } else {
                 s_sky.status = SKY_HTTP;
-                if (status) snprintf(s_sky.note, sizeof s_sky.note, "%s HTTP %d", fr24 ? "FR24" : FREE_NAME[server], status);
-                else snprintf(s_sky.note, sizeof s_sky.note, "%s NO ANSWER", fr24 ? "FR24" : FREE_NAME[server]);
+                if (status) snprintf(s_sky.note, sizeof s_sky.note, "%s HTTP %d", provider, status);
+                else snprintf(s_sky.note, sizeof s_sky.note, "%s NO ANSWER", provider);
             }
             s_http = status;
             sky_forget(&s_sky, now);
             int planes = s_sky.n;
             unlock();
             if (n >= 0) sky_out();
-            if (!fr24 && n < 0) next = (server + 1) % FREE_SERVERS;   // that one failed: the next one next time
-            else if (!fr24) next = server;
+            if (!fr24 && !custom && n < 0) next = (server + 1) % FREE_SERVERS;   // that one failed: the next one next time
+            else if (!fr24 && !custom) next = server;
             ESP_LOGI(TAG, "%s: HTTP %d, %d bytes in %d ms, %d planes in it, %d kept, %d on the list, heap %u, at least %u since power on",
-                     fr24 ? "FR24" : FREE_NAME[server], status, len, ms, rd.total, n, planes,
+                     provider, status, len, ms, rd.total, n, planes,
                      (unsigned)heap_caps_get_free_size(MALLOC_CAP_8BIT), (unsigned)heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT));
             if (fr24) every = FR24_EVERY_MS;
             if (status == 429) every *= 3;            // too many requests: slow down
             geocode();
-            if (status != 429) watch_lookup(&rd, server);   // on the free networks, FR24 or not
+            if (!custom && status != 429) watch_lookup(&rd, server);   // custom tar1090 mode makes no public feed requests
             update_check();
         }
         lock();                                        // the LED's no data: the WiFi set is not there, or no answer
@@ -790,6 +800,7 @@ static void on_line(const char *line)
     if (json_num(j, "lon", &v)) { c.lon = (float)v; home = 1; }
     int named = json_str(j, "place", c.place, sizeof c.place);
     int land = json_str(j, "country", c.country, sizeof c.country);
+    json_str(j, "host", c.host, sizeof c.host);
     if (home && !named) c.place[0] = 0;                    // a new home without a name: the board asks OSM for it
     if (home && !land) c.country[0] = 0;
     if (json_str(j, "src", src, sizeof src)) c.source = !strcmp(src, "fr24") ? SRC_FR24 : SRC_FREE;

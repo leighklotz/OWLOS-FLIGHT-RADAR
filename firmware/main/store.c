@@ -41,10 +41,32 @@ typedef struct {
     float    range;
 } cfg_v2_t;
 
+/* version 4, before the optional tar1090 host */
+typedef struct {
+    uint16_t version;
+    uint8_t  source, server, dist_unit, alt_unit, flip, theme, labels, look, map;
+    int16_t  up;
+    float    lat, lon;
+    char     place[40];
+    char     country[32];
+    float    range;
+    uint8_t  ground;
+} cfg_v4_t;
+
 int store_load_cfg(fr_cfg_t *c)
 {
     fr_cfg_t t;
     if (load_blob(NS, "cfg", &t, sizeof t) && t.version == FR_CFG_VERSION) {
+        *c = t;
+        return 1;
+    }
+    /* preserve version 4 settings and leave the new host empty */
+    _Static_assert(offsetof(fr_cfg_t, host) == sizeof(cfg_v4_t), "version 4 settings layout changed");
+    fr_cfg_defaults(&t);
+    cfg_v4_t v4;
+    if (load_blob(NS, "cfg", &v4, sizeof v4) && v4.version == 4) {
+        memcpy(&t, &v4, sizeof v4);
+        t.version = FR_CFG_VERSION;
         *c = t;
         return 1;
     }
