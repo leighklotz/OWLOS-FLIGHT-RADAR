@@ -17,3 +17,6 @@ tools/Guide/obj/
 web/twin*.js
 web/twin*.wasm
 _public/
+.hallux/
+*~
+#*#
