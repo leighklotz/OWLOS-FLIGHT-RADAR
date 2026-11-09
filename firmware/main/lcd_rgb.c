@@ -1,9 +1,10 @@
 /*
- * the 5" boards: an 800x480 panel on the S3's 16-bit RGB bus. no commands and no window here: the
- * chip reads a whole frame out of memory all the time, so a strip is only put in that frame. the
- * frame lies in the PSRAM and goes out through two small buffers in the RAM (esp_lcd's bounce
- * buffers, what Elecrow's IDF examples do), which ride out what else the PSRAM is busy with. with
- * the code in the PSRAM too (sdkconfig.defaults.s3rgb) a write to the flash does not stop it.
+ * the 5" boards and the 4.3": an 800x480 or 480x272 panel on the S3's 16-bit RGB bus. no commands
+ * and no window here: the chip reads a whole frame out of memory all the time, so a strip is only
+ * put in that frame. the frame lies in the PSRAM and goes out through two small buffers in the RAM
+ * (esp_lcd's bounce buffers, what Elecrow's IDF examples do), which ride out what else the PSRAM is
+ * busy with. with the code in the PSRAM too (sdkconfig.defaults.s3rgb) a write to the flash does not
+ * stop it.
  * written without a board with this bus at hand; a viewer's CrowPanel runs it (board.h)
  */
 #include "display.h"
@@ -25,7 +26,21 @@ static esp_lcd_panel_handle_t s_panel;
 static uint16_t *s_fb;                          // the frame, row by row. NULL: no panel, the rest goes on
 static int s_profile, s_ready, s_flip;
 
-#define BOUNCE_ROWS 10                          // the frame's rows have to divide by this
+/* the frame's rows have to divide by this, or esp_lcd takes no panel at all */
+#ifdef LCD_RGB_BOUNCE
+#define BOUNCE_ROWS LCD_RGB_BOUNCE
+#else
+#define BOUNCE_ROWS 10
+#endif
+_Static_assert(GFX_PH % BOUNCE_ROWS == 0, "the frame's rows must divide by the bounce buffer's");
+
+/* the clocks round a row and a frame: the 5" panels' unless board.h names its own */
+#ifndef LCD_RGB_H_BACK
+#define LCD_RGB_H_BACK 8
+#endif
+#ifndef LCD_RGB_V_BACK
+#define LCD_RGB_V_BACK 8
+#endif
 
 /* the two colour orders, BOOT in the first seconds or the site: the sources name the pins of red
  * and blue differently, and a bus has nothing to ask. the second one trades the two groups of
@@ -41,10 +56,10 @@ static void panel_up(void)
             .h_res = GFX_PW,
             .v_res = GFX_PH,
             .hsync_pulse_width = 4,
-            .hsync_back_porch = 8,
+            .hsync_back_porch = LCD_RGB_H_BACK,
             .hsync_front_porch = 8,
             .vsync_pulse_width = 4,
-            .vsync_back_porch = 8,
+            .vsync_back_porch = LCD_RGB_V_BACK,
             .vsync_front_porch = 8,
             .flags.pclk_active_neg = 1,
         },

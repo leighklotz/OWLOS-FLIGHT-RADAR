@@ -40,6 +40,7 @@ jobs:
           - { disp: crowadv50, num: 10, target: esp32s3 }
           - { disp: jc8048w550, num: 11, target: esp32s3 }
           - { disp: tab5, num: 12, target: esp32p4 }
+          - { disp: esp4827s043, num: 13, target: esp32s3 }
     steps:
       - uses: actions/checkout@v4
 
@@ -89,11 +90,11 @@ jobs:
       - name: Build
         run: |
           VER=$(sed -n 's/^## \([0-9][0-9.]*\).*/\1/p' CHANGES.md | head -n 1)
-          # one radar for each size of screen: 800x480, 320x240, 480x320, the round one
+          # one radar for each size of screen: 800x480, 320x240, 480x320, the round one, 480x272
           # each with its own letters: the 5" has its own set, in the glass's pixels
           FONTS="../core/font_small.c ../core/font_medium.c ../core/font_large.c ../core/font_huge.c"
           GLASS="../core/font_glass_small.c ../core/font_glass_medium.c ../core/font_glass_large.c ../core/font_glass_huge.c ../core/font_glass_tiny.c"
-          for one in 10:Twin:twin 1:Twin1:twin1 2:Twin2:twin2 4:Twin4:twin4; do
+          for one in 10:Twin:twin 1:Twin1:twin1 2:Twin2:twin2 4:Twin4:twin4 13:Twin5:twin5; do
             IFS=: read -r display name file <<< "$one"
             letters=$FONTS
             [ "$display" = 10 ] && letters=$GLASS

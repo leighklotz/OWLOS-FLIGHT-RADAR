@@ -270,6 +270,35 @@
 #define NO_CHIP_USB    1
 #define PIN_BUTTON     0        // BOOT
 
+#elif RADAR_DISPLAY == DISPLAY_4827S043_480x272
+/* ESP32-4827S043C, 4.3": ESP32-S3 N16R8, 480x272 on the RGB bus, GT911, a CH340. pins and timing from
+ * rzeldent/platformio-espressif32-sunton, esp32-4827S043C.json: the pins are the JC8048W550's, and an
+ * owner's 4827S043 showed that build's picture, too big for its glass. the panel's timing is its
+ * own: 8 MHz, 43 clocks before a row and 12 rows before a frame. NOT run on one: experimental, its
+ * owner tests it. the R version has a resistive XPT2046 instead, not in this build */
+#define DISP_LCD_RGB   1
+#define LCD_RGB_DATA   8, 3, 46, 9, 1,  5, 6, 7, 15, 16, 4,  45, 48, 47, 21, 14   // blue, green, red, lowest bit first
+#define PIN_LCD_HSYNC 39
+#define PIN_LCD_VSYNC 41
+#define PIN_LCD_DE    40
+#define PIN_LCD_PCLK  42
+#define LCD_RGB_HZ    (8 * 1000 * 1000)
+#define LCD_RGB_H_BACK 43
+#define LCD_RGB_V_BACK 12
+#define LCD_RGB_BOUNCE 8        // rows a bounce buffer: 272 divides by it, not by the 5"'s 10
+#define PIN_LCD_BL     2        // high = lit
+#define DISP_STRIP    16        // 17 strips
+#define DISP_HELPER   1
+#define LCD_PROFILES   2
+#define LCD_ORDER      { 0, 1 }
+#define TOUCH_GT911    1
+#define PIN_I2C_SDA   19        // the S3's own USB pins: this board has a CH340, they are free
+#define PIN_I2C_SCL   20
+#define PIN_T_RST     38
+#define PIN_T_INT     18
+#define NO_CHIP_USB    1
+#define PIN_BUTTON     0        // BOOT
+
 #elif RADAR_DISPLAY == DISPLAY_TAB5_1280x720
 /* M5Stack Tab5: ESP32-P4 (16 MB flash, 32 MB PSRAM), a 5" 720x1280 IPS panel standing on MIPI-DSI,
  * capacitive touch, Wi-Fi through an ESP32-C6 on SDIO (sdkconfig.defaults.esp32p4). three revisions

@@ -29,6 +29,7 @@ const BOARDS = {
   crowadv50: { name: '5" CrowPanel Advance', spec: 'ESP32-S3, 800x480 IPS, capacitive touch', chip: 's3', w: 800, h: 480, inch: 5, touch: 'capacitive', twin: 'Twin', shot: 'crowadv50/02-live.png', screens: 'two' },
   jc8048w550: { name: '5" Guition JC8048W550', spec: 'ESP32-S3, 800x480, capacitive touch', chip: 's3', w: 800, h: 480, inch: 5, touch: 'capacitive', twin: 'Twin', shot: 'crowadv50/02-live.png', screens: 'two' },
   tab5: { name: '5" M5Stack Tab5', spec: 'ESP32-P4 and C6, 1280x720 IPS, capacitive touch, experimental', chip: 'p4', w: 1280, h: 720, inch: 5, touch: 'capacitive', twin: 'Twin', shot: 'crowadv50/02-live.png' },
+  esp4827s043: { name: '4.3" ESP32-4827S043C', spec: 'ESP32-S3, 480x272, capacitive touch, experimental', chip: 's3', w: 480, h: 272, inch: 4.3, touch: 'capacitive', twin: 'Twin5', shot: 'esp4827s043/02-live.png', screens: 'two' },
 };
 const CHIP_NAME = { esp32: 'ESP32', s3: 'ESP32-S3', c3: 'ESP32-C3', c5: 'ESP32-C5', p4: 'ESP32-P4' };
 const THEMES = ['arctic', 'phosphor', 'amber', 'crimson', 'synth'];
@@ -751,10 +752,31 @@ function usbOf(port) {
   return usbProductId ? { usbVendorId, usbProductId } : { usbVendorId };
 }
 
+/* a board this page knows by its MAC that runs another build now, flashed here or anywhere else: its
+ * screen and what an update flashes follow the board. a name the page gave it goes too, one its owner
+ * gave stays. kept as it was, an update would flash the old build back */
+function rebuild(u, build, port) {
+  say(`${u.name} runs the ${BOARDS[build].name} build now`, 'page', port);
+  if (u.name === BOARDS[u.build].name) {
+    u.name = BOARDS[build].name;
+    desk.get(u.mac)?.setTitle(u.name);
+    desk.get(portId(u))?.setTitle(`${u.name}: port`);
+  }
+  u.build = build;
+  const zoom = u.screen.zoom;
+  u.screen = new Screen(BOARDS[build].twin);         // the window and the picture on top take it at their next draw
+  u.screen.zoom = zoom;
+  u.ready = u.screen.start();
+  remember();
+}
+
 /* a Flight Radar answered: it is one of your boards from now on. it goes live last of all: a try that
  * breaks before that leaves the board as it was, never on a link that is gone */
 async function attach(link, port, who) {
   let u = byMac(who.mac);
+  if (u && u.build !== who.build) {
+    rebuild(u, who.build, port);
+  }
   if (!u) {
     u = addUnit({ mac: who.mac, name: BOARDS[who.build].name, build: who.build });
     remember();

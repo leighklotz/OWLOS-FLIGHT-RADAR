@@ -17,7 +17,7 @@ cd /d "%~dp0"
 rem the version, as the firmware takes it: the first "## " line of CHANGES.md
 set VER=
 for /f "tokens=2" %%v in ('findstr /b /c:"## " ..\CHANGES.md') do if not defined VER set VER=%%v
-rem one radar for each size of screen: 800x480, 320x240, 480x320, the round one
+rem one radar for each size of screen: 800x480, 320x240, 480x320, the round one, 480x272
 rem each with its own letters: the 5" has its own set, in the glass's pixels
 set FONTS=../core/font_small.c ../core/font_medium.c ../core/font_large.c ../core/font_huge.c
 set GLASS=../core/font_glass_small.c ../core/font_glass_medium.c ../core/font_glass_large.c ../core/font_glass_huge.c ../core/font_glass_tiny.c
@@ -25,6 +25,7 @@ call :one 10 Twin twin "%GLASS%" || exit /b 1
 call :one 1 Twin1 twin1 "%FONTS%" || exit /b 1
 call :one 2 Twin2 twin2 "%FONTS%" || exit /b 1
 call :one 4 Twin4 twin4 "%FONTS%" || exit /b 1
+call :one 13 Twin5 twin5 "%FONTS%" || exit /b 1
 echo built the radars, version %VER%
 exit /b 0
 

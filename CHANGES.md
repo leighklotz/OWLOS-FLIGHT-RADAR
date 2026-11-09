@@ -4,6 +4,16 @@ What changed in each version of OWLOS Flight Radar, the newest first. The first 
 version: the firmware is built with it, the site publishes it, and a board compares its own with it.
 The site keeps the firmware of each version: a new number here keeps the one before it as it was.
 
+## 0.9
+
+- A beta. The screens on the page are your boards' own, live, and say so: LIVE over each one. Click one
+  and the board does the same.
+- Each board has a PORT window: what came along its cable, and a line to send it.
+- Finding a board's port is steadier. A board that did not answer is not left dark, a port that will not
+  open says why, and a board whose cable goes back in is found again by itself.
+- The ESP32-4827S043C, experimental: ESP32-S3, a 4.3" 480x272 screen on the RGB bus, capacitive touch,
+  with a layout of its own. Asked for in our group; not run on one here yet. Tell us how it goes.
+
 ## 0.8
 
 - The board remembers five WiFi networks and joins whichever it finds. A saved one joins with a tap on the

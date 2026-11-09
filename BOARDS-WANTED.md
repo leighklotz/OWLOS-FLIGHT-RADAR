@@ -119,7 +119,7 @@ on the site; none of the built ones here has been run on that board yet unless i
   S3's own USB pins, so the console stays off that USB here. Missing: a second source. One manual
   lists a version without touch.
 
-## Guition 4.3": asked 2026-11-07; ESP32-4827S043 named 2026-11-08
+## Guition 4.3": asked 2026-11-07; ESP32-4827S043 named 2026-11-08, its C built 2026-11-09
 
 - Asked: will one of the binaries work with the older Guition 4.3" ESP32 modules? No 4.3" build exists.
 - An 800x480 RGB one (Sunton ESP32-8048S043 and its kin) may take the JC8048W550 build, not tried and its
@@ -131,6 +131,21 @@ on the site; none of the built ones here has been run on that board yet unless i
   own pins and timing. Sold as C (capacitive, GT911), R (resistive, XPT2046) and N (no touch). New for
   the firmware: 272 rows, fewer than the 3.5" layout's 320, so the pages go smaller, not bigger as on
   the 5". Pins not looked up yet. Missing: which letter, flash and PSRAM, whether they would test.
+- Answered 2026-11-09: no letter printed on the board, but it is a touch screen, so C or R. Would test a
+  build. Has two: one ran openHASP before, the other is untouched. Asked for a photo of the back (touch
+  chip, module label). Missing: C or R, flash and PSRAM.
+- Then: "I believe the version I have is a capacitive type", not 100% sure.
+- BUILT 2026-11-09 for the C, experimental, not run on one: esp4827s043, RADAR_DISPLAY 13. Pins and
+  timing from rzeldent/platformio-espressif32-sunton esp32-4827S043C.json: the data, sync and touch
+  pins are the JC8048W550's, which is why that build showed a picture on this board; 8 MHz, HSYNC
+  4/43/8 and VSYNC 4/12/8 (pulse, back, front). That file also says N16R8, and the 5" build (octal
+  PSRAM, frame in it) did show its picture here, so the S3 RGB settings stay as they are. A layout of
+  its own at 480x272, one to one: every size switch in core/ asks GFX_H >= 320, so it takes the 2.8"'s
+  letters and rows with a wider panel (PC preview shots/esp4827s043, all pages fit). Bounce buffers of 8
+  rows: 272 does not divide by the 5"'s 10, and esp_lcd refuses a frame that does not.
+- To learn from the owner: a picture at all; colours (BOOT swaps RGB and BGR); the touch alignment
+  and taps landing; shake while the map loads. If touch is dead it may be the R: then the XPT2046 on
+  its own SPI is the next build.
 
 ## Elecrow CrowPanel Advance 5.0": built 2026-11-05, experimental, runs on a viewer's V1.3
 
@@ -215,4 +230,4 @@ check each against a second source before a build. From the easiest port to the 
   ESP32-2432S022C (8-bit parallel), Guition JC3248W535 (3.5" QSPI AXS15231B, cheap and common, some
   batches ignore the window commands: whole frames from PSRAM), JC4827W543 (QSPI NV3041A).
 - RGB parallel 800x480 from PSRAM: Sunton ESP32-8048S043/050/070, JC8048W550C. 480x272: ESP32-4827S043
-  (asked for, above).
+  (its C built 2026-11-09, above).

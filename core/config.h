@@ -15,6 +15,7 @@
 #define DISPLAY_CROWADV50_800x480 10 // Elecrow CrowPanel Advance 5.0": ESP32-S3, RGB bus, GT911 touch
 #define DISPLAY_JC8048W550_800x480 11 // Guition JC8048W550 5": ESP32-S3, RGB bus, GT911 touch
 #define DISPLAY_TAB5_1280x720   12   // M5Stack Tab5 5": ESP32-P4, 720x1280 standing on MIPI-DSI, its touch, through Espressif's board package
+#define DISPLAY_4827S043_480x272 13  // ESP32-4827S043C 4.3": ESP32-S3, 480x272 on the RGB bus, GT911 touch
 
 #ifndef RADAR_DISPLAY
 #define RADAR_DISPLAY DISPLAY_ILI9341_320x240
@@ -65,6 +66,12 @@
 #define GFX_SCALE_NUM 9              // 9/4
 #define GFX_SCALE_SHIFT 2
 #define RADAR_RGB_BUS 1
+#elif RADAR_DISPLAY == DISPLAY_4827S043_480x272
+/* the 4.3" 480x272: a layout of its own, one pixel one pixel. the 2.8"'s choices, as everything
+ * under 320 rows takes: its letters, its rows, the panel wider */
+#define GFX_W 480
+#define GFX_H 272
+#define RADAR_RGB_BUS 1
 #else
 #error "unknown RADAR_DISPLAY, see config.h"
 #endif
@@ -91,7 +98,7 @@
 #define RADAR_TOUCH_CAL (RADAR_DISPLAY == DISPLAY_ILI9341_320x240 || RADAR_DISPLAY == DISPLAY_ST7796_480x320 || \
                          RADAR_DISPLAY == DISPLAY_GC9A01_240x240 || RADAR_DISPLAY == DISPLAY_ES3C28P_320x240 || \
                          RADAR_DISPLAY == DISPLAY_NMCYDC5_320x240 || RADAR_DISPLAY == DISPLAY_CROWADV28_320x240 || \
-                         GFX_SCALED)
+                         RADAR_DISPLAY == DISPLAY_4827S043_480x272 || GFX_SCALED)
 
 /* the RPi LCD has no touch: BOOT does what it can there, the site sends the rest */
 #define RADAR_HAS_TOUCH RADAR_TOUCH_CAL
@@ -130,6 +137,8 @@
 #define RADAR_BOARD "5\" Guition JC8048W550, S3"
 #elif RADAR_DISPLAY == DISPLAY_TAB5_1280x720
 #define RADAR_BOARD "5\" M5STACK TAB5, ESP32-P4"
+#elif RADAR_DISPLAY == DISPLAY_4827S043_480x272
+#define RADAR_BOARD "4.3\" ESP32-4827S043, S3"
 #else
 #define RADAR_BOARD "E-PAPER"
 #endif

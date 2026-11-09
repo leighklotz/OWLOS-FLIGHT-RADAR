@@ -745,6 +745,8 @@ static const char *board_name(void)
     return "jc8048w550";
 #elif RADAR_DISPLAY == DISPLAY_TAB5_1280x720
     return "tab5";
+#elif RADAR_DISPLAY == DISPLAY_4827S043_480x272
+    return "esp4827s043";
 #else
     return "other";
 #endif

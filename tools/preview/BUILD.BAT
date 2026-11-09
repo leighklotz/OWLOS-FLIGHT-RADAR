@@ -1,7 +1,7 @@
 @echo off
 rem build the PC preview of the flight radar's screen with MSVC and run it
 rem   BUILD.BAT              the 2.8" CYD, screenshots go to ..\..\shots
-rem   BUILD.BAT st7796       another screen (st7796 ili9486 gc9a01 crowadv50), shots go to ..\..\shots\<screen>
+rem   BUILD.BAT st7796       another screen (st7796 ili9486 gc9a01 crowadv50 esp4827s043), shots go to ..\..\shots\<screen>
 rem core\ sources are the same as in the firmware
 setlocal
 set DISP=%~1
@@ -12,8 +12,9 @@ if /i "%DISP%"=="st7796"  set NUM=2
 if /i "%DISP%"=="ili9486" set NUM=3
 if /i "%DISP%"=="gc9a01"  set NUM=4
 if /i "%DISP%"=="crowadv50" set NUM=10
+if /i "%DISP%"=="esp4827s043" set NUM=13
 if "%NUM%"=="" (
-  echo unknown screen %DISP%, pick one of: ili9341 st7796 ili9486 gc9a01 crowadv50
+  echo unknown screen %DISP%, pick one of: ili9341 st7796 ili9486 gc9a01 crowadv50 esp4827s043
   exit /b 1
 )
 set FONTS=..\..\core\font_small.c ..\..\core\font_medium.c ..\..\core\font_large.c ..\..\core\font_huge.c
