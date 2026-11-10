@@ -238,16 +238,37 @@ static void to_text(void *ctx, const char *data, int len)
 // the most a place can be called, from a city down to a county: the first one there
 static const char *const PLACE_KIND[] = { "city", "town", "village", "municipality", "hamlet", "county", "state" };
 
+/* home's country as OpenStreetMap has it, its two letters, "" till Nominatim said. at a home in Rusia the
+ * board asks for no planes and no map. OSM puts Crimea and the occupied towns in Ukraine: asked 2026-11-10,
+ * Simferopol, Sevastopol, Kerch, Donetsk, Luhansk, Mariupol and Melitopol all "ua", Narva "ee", Ivangorod
+ * and Belgorod "ru". Nominatim silent: the board goes on as ever, nobody else is held up by it */
+static char s_home_cc[3];
+
+static int home_refused(void)
+{
+    lock();
+    int r = !strcmp(s_home_cc, "ru");
+    unlock();
+    return r;
+}
+
+/* asked once a home, after power on too, with the same rounded point the plane servers get. a home
+ * Nominatim did not answer about is asked again five minutes on */
 static void geocode(void)
 {
     static float asked_lat = 999, asked_lon = 999;
+    static uint32_t asked_at;
     fr_cfg_t c;
+    char cc[sizeof s_home_cc];
     lock();
     c = s_cfg;
+    memcpy(cc, s_home_cc, sizeof cc);
     unlock();
-    if ((c.place[0] && c.country[0]) || !net_up() || (c.lat == asked_lat && c.lon == asked_lon)) return;
+    const int same_home = c.lat == asked_lat && c.lon == asked_lon;
+    if (!net_up() || (same_home && (cc[0] || now_ms() - asked_at < 300000u))) return;
     asked_lat = c.lat;
     asked_lon = c.lon;
+    asked_at = now_ms();
     snprintf(s_osm_url, sizeof s_osm_url, "https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat=%.2f&lon=%.2f",
              (double)vague(c.lat), (double)vague(c.lon));
     const char *buf = s_osm;
@@ -255,22 +276,23 @@ static void geocode(void)
     s_osm[0] = 0;
     int status = 0;
     net_get(s_osm_url, NULL, to_text, &t, &status);
-    char place[sizeof c.place] = "", country[sizeof c.country] = "";
+    char place[sizeof c.place] = "", country[sizeof c.country] = "", code[sizeof s_home_cc] = "";
     for (int i = 0; i < (int)(sizeof PLACE_KIND / sizeof PLACE_KIND[0]) && !place[0]; i++) json_str(buf, PLACE_KIND[i], place, sizeof place);
     json_str(buf, "country", country, sizeof country);
-    ESP_LOGI(TAG, "where home is: HTTP %d, \"%s\", \"%s\"", status, place, country);
-    if (status != 200 || (!place[0] && !country[0])) return;
-    int same = 0;
+    json_str(buf, "country_code", code, sizeof code);
+    ESP_LOGI(TAG, "where home is: HTTP %d, \"%s\", \"%s\", %s", status, place, country, code[0] ? code : "no code");
+    if (status != 200 || (!place[0] && !country[0] && !code[0])) return;
+    int named = 0;
     lock();
     if (s_cfg.lat == c.lat && s_cfg.lon == c.lon) {           // still the same home
-        if (!s_cfg.place[0]) memcpy(s_cfg.place, place, sizeof place);
-        if (!s_cfg.country[0]) memcpy(s_cfg.country, country, sizeof country);
+        memcpy(s_home_cc, code, sizeof code);
+        if (!s_cfg.place[0] && place[0]) { memcpy(s_cfg.place, place, sizeof place); named = 1; }
+        if (!s_cfg.country[0] && country[0]) { memcpy(s_cfg.country, country, sizeof country); named = 1; }
+        if (named) s_cfg_new = 1;
         c = s_cfg;
-        s_cfg_new = 1;
-        same = 1;
     }
     unlock();
-    if (same) store_save_cfg(&c);
+    if (named) store_save_cfg(&c);                     // saved only when a name came that it had not
 }
 
 /* --- a home typed on the screen. "48.9 18.1" is taken as it is, no WiFi needed. a name or a
@@ -316,6 +338,7 @@ static void home_set(float lat, float lon, const char *place, const char *countr
 {
     fr_cfg_t c;
     lock();
+    if (s_cfg.lat != lat || s_cfg.lon != lon) s_home_cc[0] = 0;   // another home: its country, geocode() asks
     s_cfg.lat = lat;
     s_cfg.lon = lon;
     snprintf(s_cfg.place, sizeof s_cfg.place, "%s", place);
@@ -564,7 +587,13 @@ static void fetch_task(void *arg)
         memcpy(key, s_sec.key, sizeof key);
         sky_hide_ground(&s_sky, !c.ground);            // the screen's or the site's setting, at once
         unlock();
-        map_service(&c);                              // first: a new look or range shows its map before the planes come
+        geocode();                                     // home's country before anything is asked round it
+        const int refused = home_refused();
+        if (refused) {
+            s_map.ready = 0;                           // no map of it either, the one shown goes
+        } else {
+            map_service(&c);                          // first: a new look or range shows its map before the planes come
+        }
         uint32_t every = FREE_EVERY_MS;
         const int up = net_up();
         if (up && s_opt.clock) net_time_start();
@@ -611,6 +640,18 @@ static void fetch_task(void *arg)
             snprintf(s_sky.note, sizeof s_sky.note, "CONNECTING");
             unlock();
             every = 1000;
+        } else if (refused) {
+            static uint32_t said;
+            lock();
+            s_sky.n = 0;
+            s_sky.status = SKY_HTTP;                   // said on the screen as what is wrong, in the alarm colour
+            snprintf(s_sky.note, sizeof s_sky.note, "NOT AVAILABLE IN RUSIA");
+            unlock();
+            if (!said || now_ms() - said > 600000u) {
+                ESP_LOGW(TAG, "home is in Rusia: no planes and no map are asked");
+                said = now_ms();
+            }
+            update_check();
         } else {
             int server = next < 0 ? (c.server < FREE_SERVERS ? c.server : 0) : next;
             if (fr24) fr24_url(&c, url, sizeof url);
@@ -876,6 +917,7 @@ static void on_line(const char *line)
     store_save_cfg(&c);
     lock();
     s_sec = sec;
+    if (s_cfg.lat != c.lat || s_cfg.lon != c.lon) s_home_cc[0] = 0;   // another home: its country, geocode() asks
     s_cfg = c;
     s_cfg_new = 1;
     if (home) sky_home(&s_sky, c.lat, c.lon);

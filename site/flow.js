@@ -12,6 +12,7 @@ import { CORE_COMMANDS, CORE_GROUPS } from './console/commands.js';
 import { Terminal } from './term.js';
 import { Desk } from './win.js';
 import { BoardPaths, BOARD_GROUPS, boardCommands } from './board-console.js';
+import { startStats } from './stats.js';
 
 const $ = (id) => document.getElementById(id);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -1768,6 +1769,7 @@ fetch('version.json').then((r) => r.json()).then((v) => {
   renderBar();
 }).catch((e) => console.warn(e));
 setInterval(showStates, 10000);                        // an answer that stopped coming shows by itself
+startStats(BOARDS);                                    // the boards out there, when our server answers
 hero.start().then(() => {
   requestAnimationFrame(tickAll);
   return comeBack();

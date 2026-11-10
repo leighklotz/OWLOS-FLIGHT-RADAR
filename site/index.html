@@ -180,6 +180,62 @@
   .facts dd { margin: 0; font-family: var(--mono); font-size: 14px; }
   .pane small { color: var(--dim); }
 
+  /* the boards out there (stats.js): a line under the picture, the map and the table above the footer */
+  #statline { max-width: 1180px; margin: 4px auto 10px; padding: 0 16px; color: var(--dim); font: 400 14px var(--mono); text-align: center; letter-spacing: .5px; }
+  #statline b { color: var(--prim); font-weight: 700; text-shadow: 0 0 12px rgba(92, 225, 255, .35); }
+  #statline i { margin: 0 6px; color: var(--line); font-style: normal; }
+  #statline em, .world em { margin-left: 8px; padding: 0 6px; color: #03081a; background: var(--warn); font: 700 11px var(--mono); font-style: normal; }
+  .world { max-width: 1180px; margin: 26px auto 0; padding: 0 16px; }
+  .world h2 { margin: 0 0 10px; color: var(--prim); font: 700 15px var(--mono); letter-spacing: 2px; text-transform: uppercase; }
+  .worldgrid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  /* a panel as the boards' windows are: the frame a line along the cut shape, both cut corners lit */
+  .worldpanel {
+    --cut: 12px;
+    --shape: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+    --ring: polygon(evenodd, var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut), var(--cut) 0,
+      calc(var(--cut) + .4px) 1px, 1px calc(var(--cut) + .4px), 1px calc(100% - 1px), calc(100% - var(--cut) - .4px) calc(100% - 1px),
+      calc(100% - 1px) calc(100% - var(--cut) - .4px), calc(100% - 1px) 1px, calc(var(--cut) + .4px) 1px);
+    position: relative; isolation: isolate; padding: 14px 16px;
+  }
+  .worldpanel::before {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; clip-path: var(--ring);
+    background: linear-gradient(135deg, var(--prim) 0 34px, var(--line) 34px calc(100% - 34px), var(--prim) calc(100% - 34px));
+  }
+  .worldpanel::after { content: ""; position: absolute; inset: 1px; z-index: -1; background: rgba(6, 20, 44, .8); clip-path: var(--shape); }
+  #worldmap { position: relative; overflow: hidden; }
+  #worldmap svg { display: block; width: 100%; height: auto; aspect-ratio: 1000 / 432.1; cursor: grab; }
+  #worldmap.grabbing svg { cursor: grabbing; }
+  .mapzoom { position: absolute; top: 4px; right: 4px; display: flex; gap: 4px; }
+  .mapzoom button {
+    min-width: 26px; height: 24px; padding: 0 7px; color: var(--prim); background: rgba(3, 8, 26, .85);
+    border: 1px solid var(--line); border-radius: 4px; font: 700 13px var(--mono); cursor: pointer;
+  }
+  .mapzoom button:hover:not(:disabled) { border-color: var(--prim); box-shadow: 0 0 8px rgba(92, 225, 255, .35); }
+  .mapzoom button:disabled { opacity: .35; cursor: default; }
+  #worldlegend .hint { margin-left: auto; color: var(--dim); opacity: .75; }
+  #worldmap .land { fill: #0a1c36; stroke: #1d4a78; stroke-width: .6px; vector-effect: non-scaling-stroke; }
+  #worldmap .land.has { stroke: #5ce1ff; stroke-opacity: .55; }
+  #worldmap .land.has:hover, #worldmap .land.has.on { stroke: #eaf7ff; stroke-opacity: 1; stroke-width: 1.4px; }
+  #worldmap .dot { cursor: default; }
+  #worldmap .dot circle { fill: rgba(3, 8, 26, .88); stroke: var(--prim); }
+  #worldmap .dot text { fill: var(--focus); font: 700 9px var(--mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  #worldtip { position: absolute; z-index: 2; padding: 4px 8px; pointer-events: none; color: var(--focus); background: #050e22; border: 1px solid var(--prim); font: 400 12px var(--mono); white-space: nowrap; }
+  #worldlegend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 10px 0 0; color: var(--dim); font: 400 12px var(--mono); }
+  #worldlegend span, #countrylist li { display: inline-flex; align-items: center; gap: 5px; }
+  #worldlegend i, #countrylist i { width: 10px; height: 10px; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(234, 247, 255, .25); }
+  #countrylist { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; padding: 0; list-style: none; color: var(--dim); font: 400 12px var(--mono); }
+  #countrylist b { color: var(--focus); }
+  #boardstats table { width: 100%; border-collapse: collapse; font: 400 13px var(--mono); }
+  #boardstats th, #boardstats td { padding: 7px 6px; text-align: left; vertical-align: top; border-bottom: 1px solid rgba(29, 74, 120, .55); }
+  #boardstats thead th { color: var(--dim); font-weight: 400; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; border-bottom-color: var(--line); }
+  #boardstats tbody th { color: var(--focus); font-weight: 600; }
+  #boardstats td { position: relative; color: var(--focus); }
+  #boardstats td small { color: var(--dim); font-size: 11px; }
+  #boardstats .num { font-variant-numeric: tabular-nums; }
+  #boardstats td:last-child, #boardstats thead th:last-child { text-align: right; }
+  #boardstats .meter { position: absolute; left: 6px; bottom: 2px; height: 2px; max-width: calc(100% - 12px); background: var(--prim); box-shadow: 0 0 6px var(--prim); opacity: .8; }
+  @media (max-width: 860px) { .worldgrid { grid-template-columns: minmax(0, 1fr); } }
+
   footer { max-width: 1180px; margin: 0 auto; padding: 18px 16px 30px; color: var(--dim); font-size: 15px; border-top: 1px solid rgba(29, 74, 120, .55); }
 
   footer p { margin: 0 0 8px; }
@@ -328,6 +384,7 @@
 <p id="hint">Click anything in the picture</p>
 <aside id="info" hidden></aside>
 </div>
+<p id="statline" hidden></p>
 
 <ol class="legend">
   <li><b>The plane</b> says where it is: ADS-B, 1090 MHz</li>
@@ -350,6 +407,18 @@
 
 <div id="desk"></div>
 
+<section class="world" id="world" hidden aria-labelledby="worldhead">
+  <h2 id="worldhead">Boards around the world</h2>
+  <div class="worldgrid">
+    <div class="worldpanel">
+      <div id="worldmap"></div>
+      <div id="worldlegend"></div>
+      <ul id="countrylist" aria-label="Boards flashed, by country"></ul>
+    </div>
+    <div class="worldpanel" id="boardstats"></div>
+  </div>
+</section>
+
 <footer>
   <p>Looking for the page you know, with every firmware version and the full guide? <a href="previous/">Previous page</a>.</p>
   <p class="credits">With no board connected the planes in the picture on top are a demo. With one they are its own, over the ground around its home. Your board reads <a href="https://www.adsb.lol/">adsb.lol</a> (open data under ODbL 1.0),
@@ -362,7 +431,8 @@
     National Oceanic and Atmospheric Administration. Mexico terrain data source: INEGI, Continental relief, 2016. New Zealand terrain data Copyright 2011 Crown copyright (c) Land
     Information New Zealand and the New Zealand Government (All rights reserved). Norway terrain data &copy; Kartverket. United Kingdom terrain data &copy; Environment Agency
     copyright and/or database right 2015. All rights reserved. United States 3DEP (formerly NED) and global GMTED2010 and SRTM terrain data courtesy of the U.S. Geological Survey.
-    Flashing: <a href="https://github.com/espressif/esptool-js">esptool-js</a>, Apache 2.0.</p>
+    Flashing: <a href="https://github.com/espressif/esptool-js">esptool-js</a>, Apache 2.0.
+    Countries on the map of boards: <a href="https://www.naturalearthdata.com/">Natural Earth</a>, public domain, with Crimea drawn as part of Ukraine.</p>
 </footer>
 
 <div id="termbody" hidden>

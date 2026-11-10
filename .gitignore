@@ -14,6 +14,8 @@ tools/QrBake/obj/
 tools/preview/tiles/
 tools/Guide/bin/
 tools/Guide/obj/
+tools/WorldBake/bin/
+tools/WorldBake/obj/
 web/twin*.js
 web/twin*.wasm
 _public/

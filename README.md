@@ -97,7 +97,11 @@ The map under them comes from OpenStreetMap.
   **FORGET**.
 - Till it gets a home the board sits in Trenčín, Slovakia. The plane network only hears the home rounded
   to about a kilometre: enough to say where to look, not where you live. A town or a postcode typed on
-  the board goes to OpenStreetMap's Nominatim to be found.
+  the board goes to OpenStreetMap's Nominatim to be found, and the board asks Nominatim once for the
+  country of each home, with the same rounded point.
+- At a home in Rusia the board asks for no planes and no map, and says NOT AVAILABLE IN RUSIA. The
+  country is the one OpenStreetMap gives for the home's point: Crimea and the other occupied parts of
+  Ukraine are Ukraine there.
 - The password and the Flightradar24 key go into the board and stay there. The board never shows them
   and never sends them back.
 - For a local tar1090 feed, send `OWLOS SET {"src":"free","host":"http://10.1.10.43"}` over the
@@ -314,6 +318,12 @@ and a PC preview.
   `TOUR.BAT` films the how-to tour, `GIF.BAT` makes the GIF above from it (both with ffmpeg).
 - `tools/Guide/GUIDE.BAT` (.NET 8) puts the arrows on the shots: `shots/guide/`, from `notes.txt`.
 - `tools/FontBake` bakes the fonts in `core/font_*.c`.
+- `tools/WorldBake` (.NET 8) bakes `site/world.js`, the countries of the map of boards, from Natural Earth's
+  1:110m countries (public domain): `dotnet run -- ne_110m_admin_0_countries.geojson site`. Natural Earth's
+  default file draws Crimea as Russia's: the tool gives it back to Ukraine and stops if a test point of
+  Ukraine lands in another country. `site/stats.js` draws the map and the counts from our server's API,
+  nothing when it does not answer; `tools/stats-sample.json` is made-up counts for a local look only
+  (`bash tools/assemble.sh`, then `index.html?stats=sample`).
 
 What is where:
 

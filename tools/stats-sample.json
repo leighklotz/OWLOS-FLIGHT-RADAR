@@ -1,0 +1,42 @@
+{
+  "sample": true,
+  "updated": "2026-11-10T13:00:00Z",
+  "flashed": 412,
+  "online": 138,
+  "cable": 7,
+  "boards": [
+    { "build": "st7796", "flashed": 131, "online": 49, "versions": [["0.11", 22], ["0.10", 41], ["0.9", 38], ["0.8", 30]] },
+    { "build": "ili9341", "flashed": 118, "online": 37, "versions": [["0.11", 15], ["0.10", 33], ["0.9", 40], ["0.8", 30]] },
+    { "build": "crowadv50", "flashed": 34, "online": 12, "versions": [["0.11", 6], ["0.10", 12], ["0.9", 16]] },
+    { "build": "gc9a01", "flashed": 29, "online": 11, "versions": [["0.10", 9], ["0.9", 20]] },
+    { "build": "esp4827s043", "flashed": 21, "online": 8, "versions": [["0.11", 5], ["0.10", 9], ["0.9", 7]] },
+    { "build": "jc8048w550", "flashed": 19, "online": 6, "versions": [["0.10", 8], ["0.9", 11]] },
+    { "build": "es3c28p", "flashed": 17, "online": 5, "versions": [["0.10", 7], ["0.9", 10]] },
+    { "build": "crowadv28", "flashed": 14, "online": 4, "versions": [["0.10", 6], ["0.9", 8]] },
+    { "build": "tab5", "flashed": 11, "online": 3, "versions": [["0.10", 5], ["0.9", 6]] },
+    { "build": "nmcydc5", "flashed": 9, "online": 2, "versions": [["0.10", 4], ["0.9", 5]] },
+    { "build": "ili9486", "flashed": 6, "online": 1, "versions": [["0.9", 6]] },
+    { "build": "crow70", "flashed": 3, "online": 0, "versions": [["0.11", 3]] }
+  ],
+  "countries": [
+    { "cc": "DE", "flashed": 96, "online": 34 },
+    { "cc": "US", "flashed": 71, "online": 22 },
+    { "cc": "GB", "flashed": 52, "online": 18 },
+    { "cc": "AU", "flashed": 38, "online": 15 },
+    { "cc": "NL", "flashed": 27, "online": 9 },
+    { "cc": "SK", "flashed": 24, "online": 8 },
+    { "cc": "FR", "flashed": 19, "online": 6 },
+    { "cc": "CA", "flashed": 17, "online": 5 },
+    { "cc": "IT", "flashed": 14, "online": 4 },
+    { "cc": "PL", "flashed": 12, "online": 4 },
+    { "cc": "SE", "flashed": 9, "online": 3 },
+    { "cc": "CZ", "flashed": 8, "online": 3 },
+    { "cc": "BR", "flashed": 6, "online": 2 },
+    { "cc": "JP", "flashed": 5, "online": 2 },
+    { "cc": "ZA", "flashed": 4, "online": 1 },
+    { "cc": "NZ", "flashed": 3, "online": 1 },
+    { "cc": "IN", "flashed": 2, "online": 1 },
+    { "cc": "AR", "flashed": 1, "online": 0 },
+    { "cc": "RU", "flashed": 5, "online": 2 }
+  ]
+}

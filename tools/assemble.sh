@@ -18,6 +18,7 @@ done
 cp web/index.html web/twin*.js web/twin*.wasm "$OUT/radar/"
 cp -r site/. "$OUT/"
 cp CHANGES.md "$OUT/"
+cp tools/stats-sample.json "$OUT/"             # made-up counts for a look at the stats here: index.html?stats=sample
 cp -r shots/. "$OUT/shots/"
 printf '{"version":"%s"}\n' "$VER" > "$OUT/version.json"
 tr -d '\r' < .github/make-manifests.sh > "$OUT/.m.sh"
