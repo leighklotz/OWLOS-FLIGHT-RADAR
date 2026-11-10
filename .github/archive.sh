@@ -27,7 +27,10 @@ newer() {   # 1 if version $1 is above $2
 # what the site keeps now, one line a version: version|text|dir|board board ...
 # versions.json is this script's own, one version a line, read back the way it is written
 live=$(mktemp)
-code=$(curl -sS -o "$live.json" -w '%{http_code}' "$URL/fw/versions.json?run=${GITHUB_RUN_ID:-0}")
+# Pages answers 503 now and then, and a run asks it for hundreds of files: a passing error is asked again
+# (curl's --retry: 408, 429, 500, 502, 503, 504 and timeouts). an answer that stays bad still stops the run
+RETRY="--retry 4 --retry-delay 5"
+code=$(curl -sS $RETRY -o "$live.json" -w '%{http_code}' "$URL/fw/versions.json?run=${GITHUB_RUN_ID:-0}")
 case "$code" in
   200) sed -n 's/.*"version": "\([^"]*\)", "text": "\([^"]*\)", "dir": "\([^"]*\)", "boards": \[ \(.*\) \].*/\1|\2|\3|\4/p' \
          "$live.json" > "$live" ;;
@@ -47,7 +50,7 @@ while IFS='|' read -r v text dir boards <&3; do
   for b in $(echo "$boards" | tr -d '",'); do
     mkdir -p "$FW/$v/$b"
     for f in $FILES; do
-      code=$(curl -sS -o "$FW/$v/$b/$f" -w '%{http_code}' "$URL/$dir/$b/$f?run=${GITHUB_RUN_ID:-0}")
+      code=$(curl -sS $RETRY -o "$FW/$v/$b/$f" -w '%{http_code}' "$URL/$dir/$b/$f?run=${GITHUB_RUN_ID:-0}")
       if [ "$code" != 200 ]; then
         echo "$URL/$dir/$b/$f answered $code: stopping, or $v would be lost" >&2
         exit 1
