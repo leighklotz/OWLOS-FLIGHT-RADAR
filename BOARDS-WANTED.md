@@ -209,6 +209,23 @@ on the site; none of the built ones here has been run on that board yet unless i
 - To learn from anyone with one: which panel it has, does the flash from the site go through, does the
   WiFi join.
 
+## Elecrow CrowPanel 7": asked 2026-11-09, not built
+
+- Asked in the group: "ELECROW CrowPanel 7" ESP32 Display Touchscreen 800x480 ... ESP32-S3 240MHz,
+  800x480 IPS Touchscreen", would it be suitable. The asker has one.
+- Elecrow sells two 7" boards, and a shop title does not tell them apart. The plain CrowPanel 7.0:
+  ESP32-S3-WROOM-1 N4R8, a TN panel by Elecrow's spec (many shops call it IPS), its pins on the S3. The
+  CrowPanel Advance 7.0: N16R8, IPS, SC7277, a swappable radio socket; likely a chip for the backlight
+  as on the Advance 5.0, not checked.
+- 800x480, so the 5" boards' layout as it is; a new build for the pins and the clocks. 4 MB of flash is
+  enough: the S3 RGB builds use partitions.csv. Missing: which one (the back: SKU, version), would they test.
+- The asker's photo of the back, 2026-11-09: "ESP32 Display-7 inch, SKU:DIS08070H", V3.0, so the plain
+  7.0, not the Advance. The backlight on GPIO 2 by Elecrow's wiki. On V3.0 a PCA9557 at 0x18 holds the
+  GT911's reset and INT, as on the Advance 5.0 V1.0 (lcd_rgb.c has that code); an ESPHome draft says
+  driving it broke the touch there, Elecrow's own examples do drive it. I2C on 19 and 20, the S3's USB
+  pins, as on the Guition. RGB pins and clocks: from Elecrow's 7.0 examples and a second source.
+  Missing: would they test.
+
 ## Others on sale, nobody asked yet
 
 Looked up 2026-11-03 to see what else people build things like this on. Pins are in the board JSONs

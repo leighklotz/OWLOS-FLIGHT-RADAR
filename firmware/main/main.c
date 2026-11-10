@@ -169,7 +169,9 @@ static void *iram_first(size_t bytes)
 static map_t      s_map;
 static map_plan_t s_plan;
 static int        s_map_read;          // tiles that went into s_map
+static uint32_t   s_map_done;          // and which of the plan's, a bit each
 static uint32_t   s_map_try;           // when it last asked for missing ones
+_Static_assert(MAP_TILES_MAX <= 32, "a bit a tile in s_map_done");
 
 static void map_service(const fr_cfg_t *c)
 {
@@ -184,19 +186,27 @@ static void map_service(const fr_cfg_t *c)
     int kept = tiles_fetch(s_plan.tiles, s_plan.ntiles);      // the missing ones, when the WiFi is up
     uint32_t low_fetch = (uint32_t)heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT);
     if (same && kept <= s_map_read) return;                   // nothing new to show
-    if (!map_alloc(&s_map, w, h, disc)) {
-        ESP_LOGE(TAG, "map: no memory for %d x %d texels", w, h);
-        return;
-    }
     int64_t t0 = esp_timer_get_time();
-    map_begin(&s_map);
+    /* a retry for the same plan reads only the tiles still missing, into the texels as they are.
+     * it used to wipe them and read every tile again: with the memory short just then, a map that
+     * showed went and stayed away till a restart */
+    if (!same) {
+        if (!map_alloc(&s_map, w, h, disc)) {
+            ESP_LOGE(TAG, "map: no memory for %d x %d texels", w, h);
+            return;
+        }
+        map_begin(&s_map);
+        s_map_done = 0;
+    }
     int read = 0, oom = 0;
     for (int k = 0; k < s_plan.ntiles; k++) {
         tile_src_t src;
-        if (!tiles_open(&s_plan.tiles[k], &src)) continue;
-        int r = map_tile(&s_map, &s_plan, k, tiles_read, &src);
-        read += r == PNG_OK;
-        oom |= r == PNG_NO_MEMORY;
+        if (!(s_map_done & 1u << k) && tiles_open(&s_plan.tiles[k], &src)) {
+            int r = map_tile(&s_map, &s_plan, k, tiles_read, &src);
+            if (r == PNG_OK) s_map_done |= 1u << k;
+            oom |= r == PNG_NO_MEMORY;
+        }
+        read += (s_map_done >> k) & 1;
     }
     map_end(&s_map, &s_plan);
     if (oom) ESP_LOGW(TAG, "map: no memory to read a tile in, heap %u, largest %u",

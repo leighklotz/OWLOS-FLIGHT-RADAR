@@ -151,7 +151,7 @@ int tiles_fetch(const tile_id_t *t, int n)
             } else {
                 esp_http_client_set_url(h, url);
             }
-            int status = 0;
+            int status = 0, whole = 0;
             writer_t w;
             if (esp_http_client_open(h, 0) == ESP_OK && esp_http_client_fetch_headers(h) >= 0) {
                 status = esp_http_client_get_status_code(h);
@@ -159,17 +159,23 @@ int tiles_fetch(const tile_id_t *t, int n)
                     w_begin(&w);
                     int r;
                     while ((r = esp_http_client_read(h, buf, sizeof buf)) > 0) w_put(&w, buf, (uint32_t)r);
-                    if (esp_http_client_is_complete_data_received(h) && w_end(&w, &t[k])) { got++; fresh++; }
+                    whole = esp_http_client_is_complete_data_received(h) && w_end(&w, &t[k]);
+                    if (whole) { got++; fresh++; }
                     else ESP_LOGW(TAG, "%s came broken", url);
                 } else {
                     esp_http_client_flush_response(h, NULL);
                     ESP_LOGW(TAG, "%s: HTTP %d", url, status);
                 }
             }
-            if (status) break;
-            esp_http_client_close(h);                       // no answer: once more on a new connection
-            esp_http_client_cleanup(h);
-            h = NULL;
+            /* anything but a whole tile: a new connection for the next one. a tile cut short (the
+             * memory short for TLS) leaves TLS without its buffers, and the next request written into
+             * it crashed the 3.5" (LoadProhibited, a memcpy to NULL) */
+            if (!whole) {
+                esp_http_client_close(h);
+                esp_http_client_cleanup(h);
+                h = NULL;
+            }
+            if (status) break;                              // no answer at all: once more, on the new one
         }
     }
     if (h) {

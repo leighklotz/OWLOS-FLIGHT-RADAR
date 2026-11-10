@@ -4,6 +4,14 @@ What changed in each version of OWLOS Flight Radar, the newest first. The first 
 version: the firmware is built with it, the site publishes it, and a board compares its own with it.
 The site keeps the firmware of each version: a new number here keeps the one before it as it was.
 
+## 0.10
+
+- Fixed: a board could restart on the map, most often right after the range changed. When a map tile came
+  only in part, the next one was asked for on a connection that was already broken.
+- Fixed: the map could go from the screen after a while and stay away till a restart. A second try for
+  the tiles still missing wiped the map first, and with the memory short just then nothing came back. Now
+  it adds the missing tiles to the map that is there.
+
 ## 0.9
 
 - A beta. The screens on the page are your boards' own, live, and say so: LIVE over each one. Click one
