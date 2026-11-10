@@ -747,7 +747,6 @@ static void fetch_task(void *arg)
                      (unsigned)heap_caps_get_free_size(MALLOC_CAP_8BIT), (unsigned)heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT));
             if (fr24) every = FR24_EVERY_MS;
             if (status == 429) every *= 3;            // too many requests: slow down
-            geocode();
             if (!custom && status != 429) watch_lookup(&rd, server);   // custom tar1090 mode makes no public feed requests
             update_check();
             alive_report();
