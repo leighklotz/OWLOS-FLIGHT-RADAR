@@ -11,7 +11,9 @@
  *   build is a firmware build's name (BOARDS in flow.js), cc a country's ISO 3166 two letters, versions what the
  *   flashes were, the newest first. "sample": true marks the made-up file of a local test (tools/stats-sample.json)
  */
-const API = 'https://radar.owlos.sk/api/stats';
+/* our server's address. empty till the server is up: the page then asks nothing at all, not even the map,
+ * and shows none of this (a local look still works: index.html?stats=sample) */
+const API = '';
 const EVERY = 60000;                                   // the server counts once a minute too
 /* countries left out: on the map only land, no shade, no number, nothing over it, and not in the list. the
  * server does not count them either; this is so a count that came anyway shows nowhere */
@@ -361,6 +363,9 @@ async function show(boards) {
 }
 
 export function startStats(boards) {
+  if (!sourceUrl()) {
+    return;                                            // no server yet: nothing to ask
+  }
   const map = document.getElementById('worldmap');
   tipFor(map);
   steer(map);
