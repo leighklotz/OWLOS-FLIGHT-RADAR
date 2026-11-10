@@ -209,7 +209,7 @@ on the site; none of the built ones here has been run on that board yet unless i
 - To learn from anyone with one: which panel it has, does the flash from the site go through, does the
   WiFi join.
 
-## Elecrow CrowPanel 7": asked 2026-11-09, not built
+## Elecrow CrowPanel 7": asked 2026-11-09, built 2026-11-10 (crow70, 0.11), not run yet
 
 - Asked in the group: "ELECROW CrowPanel 7" ESP32 Display Touchscreen 800x480 ... ESP32-S3 240MHz,
   800x480 IPS Touchscreen", would it be suitable. The asker has one.
@@ -224,7 +224,14 @@ on the site; none of the built ones here has been run on that board yet unless i
   GT911's reset and INT, as on the Advance 5.0 V1.0 (lcd_rgb.c has that code); an ESPHome draft says
   driving it broke the touch there, Elecrow's own examples do drive it. I2C on 19 and 20, the S3's USB
   pins, as on the Guition. RGB pins and clocks: from Elecrow's 7.0 examples and a second source.
-  Missing: would they test.
+- 2026-11-10 the asker flashed the CrowPanel Advance 5" build on it: the WiFi set up and the planes on
+  the site, the screen dark. As expected: other pins for the screen and the backlight. They will test
+  a build of its own.
+- The build, crow70: the pins from Elecrow's V3.0 examples (crowpanel-esp32-7.0.ino, Course/LVGL_Arduino7.0)
+  and its V3.0 hardware guide; ESPHome's setups have the same sync pins. Rows and frames 48/40/40 and
+  31/13/1 in both examples, the clock 15 MHz in one and 24 in the other, 16 here. The PCA9557 is left
+  alone unless the touch is silent, then the touch's reset as Elecrow does it. GPIO 0 is the panel's
+  clock and BOOT: no button read.
 
 ## Others on sale, nobody asked yet
 

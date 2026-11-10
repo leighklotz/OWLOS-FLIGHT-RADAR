@@ -16,6 +16,7 @@
 #define DISPLAY_JC8048W550_800x480 11 // Guition JC8048W550 5": ESP32-S3, RGB bus, GT911 touch
 #define DISPLAY_TAB5_1280x720   12   // M5Stack Tab5 5": ESP32-P4, 720x1280 standing on MIPI-DSI, its touch, through Espressif's board package
 #define DISPLAY_4827S043_480x272 13  // ESP32-4827S043C 4.3": ESP32-S3, 480x272 on the RGB bus, GT911 touch
+#define DISPLAY_CROW70_800x480  14   // Elecrow CrowPanel 7.0" (the plain one, not the Advance): ESP32-S3, RGB bus, GT911 touch
 
 #ifndef RADAR_DISPLAY
 #define RADAR_DISPLAY DISPLAY_ILI9341_320x240
@@ -40,9 +41,10 @@
 #define GFX_W 792
 #define GFX_H 272
 #define RADAR_EPAPER 1
-#elif RADAR_DISPLAY == DISPLAY_CROWADV50_800x480 || RADAR_DISPLAY == DISPLAY_JC8048W550_800x480
-/* the 5" boards: the 3.5"'s layout, everything half as big again on an 800x480 glass. GFX_W and
- * GFX_H stay the layout's: the pages, the touch and every number in them go on as they are, and
+#elif RADAR_DISPLAY == DISPLAY_CROWADV50_800x480 || RADAR_DISPLAY == DISPLAY_JC8048W550_800x480 || \
+      RADAR_DISPLAY == DISPLAY_CROW70_800x480
+/* the 5" boards and the 7": the 3.5"'s layout, everything half as big again on an 800x480 glass.
+ * GFX_W and GFX_H stay the layout's: the pages, the touch and every number in them go on as they are, and
  * core/gfx.c puts it on the glass in the glass's own pixels (GFX_Z). 534 and not 533: its middle
  * is the glass's middle, and the half pixel past the edge is clipped */
 #define GFX_W 534
@@ -111,8 +113,9 @@
 #define RADAR_LED_RED_PIN (RADAR_DISPLAY == DISPLAY_ILI9341_320x240 || RADAR_DISPLAY == DISPLAY_ST7796_480x320)
 
 /* a BOOT button the firmware can read: every board but the Tab5, whose buttons go to its power
- * chip and its C6, not the P4. the pages say what BOOT does only where there is one */
-#define RADAR_HAS_BUTTON (RADAR_DISPLAY != DISPLAY_TAB5_1280x720)
+ * chip and its C6, not the P4, and the CrowPanel 7.0, whose BOOT is on the screen's clock line.
+ * the pages say what BOOT does only where there is one */
+#define RADAR_HAS_BUTTON (RADAR_DISPLAY != DISPLAY_TAB5_1280x720 && RADAR_DISPLAY != DISPLAY_CROW70_800x480)
 
 #define RADAR_NAME "OWLOS FLIGHTS"
 
@@ -139,6 +142,8 @@
 #define RADAR_BOARD "5\" M5STACK TAB5, ESP32-P4"
 #elif RADAR_DISPLAY == DISPLAY_4827S043_480x272
 #define RADAR_BOARD "4.3\" ESP32-4827S043, S3"
+#elif RADAR_DISPLAY == DISPLAY_CROW70_800x480
+#define RADAR_BOARD "7\" CrowPanel 7.0, S3"
 #else
 #define RADAR_BOARD "E-PAPER"
 #endif

@@ -57,6 +57,10 @@ The map under them comes from OpenStreetMap.
 - **4.3" ESP32-4827S043C**: ESP32-S3, 480x272 on the RGB bus, capacitive touch (GT911), with a layout of
   its own. Experimental, never run on a real board here: the pins and the panel's timing come from one
   board file. The R version, with resistive touch, is not in this build.
+- **7" Elecrow CrowPanel 7.0**, the plain one (DIS08070H), not the Advance: ESP32-S3, 800x480 on the RGB
+  bus, capacitive touch (GT911), the 5" boards' layout. Experimental, never run on a real board here: the
+  pins come from Elecrow's examples and its V3.0 schematic. Its BOOT button is the screen's clock line, so
+  the firmware does not read it.
 - **1.28" round** (Elecrow CrowPanel): ESP32-C3, GC9A01 240x240, capacitive touch.
 - **3.5" RPi LCD** (Waveshare RPi LCD (A) on the OWLOSAirQuality board): ESP32, ILI9486 480x320, no touch.
 - **5" M5Stack Tab5**: ESP32-P4 with an ESP32-C6 for the WiFi, 720x1280 IPS on MIPI-DSI turned to lie
@@ -287,8 +291,8 @@ and a PC preview.
 
 - `firmware/BUILD.BAT <screen> [COMx]` builds one screen's firmware (and flashes it to COMx). Screens:
   `ili9341` (2.8" CYD, the default), `st7796` (3.5" CYD), `gc9a01` (round), `ili9486` (RPi LCD),
-  `es3c28p`, `nmcydc5`, `crowadv28`, `crowadv50`, `jc8048w550`, `tab5`, `esp4827s043`. Each screen has
-  its own build folder and sdkconfig.
+  `es3c28p`, `nmcydc5`, `crowadv28`, `crowadv50`, `jc8048w550`, `tab5`, `esp4827s043`, `crow70`. Each
+  screen has its own build folder and sdkconfig.
 - `.github/workflows/pages.yml` builds them all in Espressif's ESP-IDF image and publishes the site
   with them on GitHub Pages, on every push to main.
 - The version is the first `## ` line of `CHANGES.md`: the firmware is built with it, and the site

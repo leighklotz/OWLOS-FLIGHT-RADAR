@@ -241,7 +241,25 @@ void tp_init(void)
     gpio_config(&in);
     vTaskDelay(pdMS_TO_TICKS(60));
 #endif
-    if (!gt_find()) ESP_LOGW(TAG, "no GT911, going on without touch (BOOT button still works)");
+#ifdef TOUCH_RESET_PCA9557
+    /* the CrowPanel 7.0: its reset is IO0 of a PCA9557, its INT IO1. ESPHome's people found that a
+     * reset at every start broke the touch, and an older V3.0 example of Elecrow's leaves the chip
+     * alone: so only when the touch is silent, Elecrow's own order then, INT low through the reset
+     * for 0x5D. IO2 and up, the panel's reset and power among them, stay as they are */
+    if (!gt_find() && i2c_probe(TOUCH_RESET_PCA9557)) {
+        i2c_master_dev_handle_t x = i2c_dev(TOUCH_RESET_PCA9557);
+        const uint8_t low[2] = { 1, 0xFC }, out[2] = { 3, 0xFC }, up[2] = { 1, 0xFD }, let_go[2] = { 3, 0xFE };
+        int ok = i2c_master_transmit(x, low, 2, 50) == ESP_OK;  // the levels first: IO0 and IO1 low
+        ok = ok && i2c_master_transmit(x, out, 2, 50) == ESP_OK; // then those two driven
+        vTaskDelay(pdMS_TO_TICKS(20));
+        ok = ok && i2c_master_transmit(x, up, 2, 50) == ESP_OK;  // out of reset, INT still low
+        vTaskDelay(pdMS_TO_TICKS(100));
+        ok = ok && i2c_master_transmit(x, let_go, 2, 50) == ESP_OK;   // INT is the touch's again
+        vTaskDelay(pdMS_TO_TICKS(60));
+        ESP_LOGW(TAG, "the touch was silent: reset through the PCA9557%s", ok ? "" : ", which did not take it all");
+    }
+#endif
+    if (!s_gt && !gt_find()) ESP_LOGW(TAG, "no GT911, going on without touch%s", RADAR_HAS_BUTTON ? " (BOOT button still works)" : "");
 }
 
 int tp_read(int *rx, int *ry) { return s_gt ? gt_read(rx, ry) : 0; }

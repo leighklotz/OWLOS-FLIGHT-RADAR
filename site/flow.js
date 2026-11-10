@@ -30,6 +30,8 @@ const BOARDS = {
   jc8048w550: { name: '5" Guition JC8048W550', spec: 'ESP32-S3, 800x480, capacitive touch', chip: 's3', w: 800, h: 480, inch: 5, touch: 'capacitive', twin: 'Twin', shot: 'crowadv50/02-live.png', screens: 'two' },
   tab5: { name: '5" M5Stack Tab5', spec: 'ESP32-P4 and C6, 1280x720 IPS, capacitive touch, experimental', chip: 'p4', w: 1280, h: 720, inch: 5, touch: 'capacitive', twin: 'Twin', shot: 'crowadv50/02-live.png' },
   esp4827s043: { name: '4.3" ESP32-4827S043C', spec: 'ESP32-S3, 480x272, capacitive touch, experimental', chip: 's3', w: 480, h: 272, inch: 4.3, touch: 'capacitive', twin: 'Twin5', shot: 'esp4827s043/02-live.png', screens: 'two' },
+  // its BOOT is the screen's clock line: nothing to press while it runs
+  crow70: { name: '7" CrowPanel 7.0', spec: 'ESP32-S3, 800x480, capacitive touch, experimental', chip: 's3', w: 800, h: 480, inch: 7, touch: 'capacitive', twin: 'Twin', shot: 'crowadv50/02-live.png', screens: 'two', noboot: true },
 };
 const CHIP_NAME = { esp32: 'ESP32', s3: 'ESP32-S3', c3: 'ESP32-C3', c5: 'ESP32-C5', p4: 'ESP32-P4' };
 const THEMES = ['arctic', 'phosphor', 'amber', 'crimson', 'synth'];
@@ -1219,8 +1221,9 @@ function screenWords(u) {
     return '';
   }
   const chips = s.names.map((n, i) => `<button class="chip" data-screen="${n}" aria-pressed="${u.cfg?.screen === i}">${n}</button>`).join('');
+  const boot = BOARDS[u.build].noboot ? '' : ' Or press BOOT within 8 seconds after a restart.';
   return `<div class="note wait boothint"><p>${s.words}</p><div class="chips">${chips}</div>
-    <p>The board keeps the one you stop on. Or press BOOT within 8 seconds after a restart. <a href="previous/#boot" target="_blank">More</a></p></div>`;
+    <p>The board keeps the one you stop on.${boot} <a href="previous/#boot" target="_blank">More</a></p></div>`;
 }
 
 function liveNote(u) {

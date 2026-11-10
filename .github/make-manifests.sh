@@ -21,6 +21,7 @@ for dir in "$FW"/*/; do
     jc8048w550) name='5" Guition JC8048W550 (ESP32-S3, 800x480, experimental)'; family='ESP32-S3' ;;
     tab5) name='5" M5Stack Tab5 (ESP32-P4, 1280x720 on MIPI-DSI, experimental)'; family='ESP32-P4' ;;
     esp4827s043) name='4.3" ESP32-4827S043C (ESP32-S3, 480x272, experimental)'; family='ESP32-S3' ;;
+    crow70) name='7" Elecrow CrowPanel 7.0 (ESP32-S3, 800x480, experimental)'; family='ESP32-S3' ;;
     *) echo "skipping unknown folder $disp"; continue ;;
   esac
   parts=""

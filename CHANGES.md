@@ -4,6 +4,12 @@ What changed in each version of OWLOS Flight Radar, the newest first. The first 
 version: the firmware is built with it, the site publishes it, and a board compares its own with it.
 The site keeps the firmware of each version: a new number here keeps the one before it as it was.
 
+## 0.11
+
+- Elecrow's CrowPanel 7.0, the plain one (DIS08070H), experimental: ESP32-S3, an 800x480 screen on the RGB
+  bus, capacitive touch, the 5" boards' layout. Asked for in our group by an owner who tests it; not run on
+  one here yet. Its BOOT button is the screen's clock line: do not press it while the screen runs.
+
 ## 0.10
 
 - Fixed: a board could restart on the map, most often right after the range changed. When a map tile came

@@ -1,6 +1,6 @@
 /*
- * the 5" boards and the 4.3": an 800x480 or 480x272 panel on the S3's 16-bit RGB bus. no commands
- * and no window here: the chip reads a whole frame out of memory all the time, so a strip is only
+ * the 5" boards, the 7" and the 4.3": an 800x480 or 480x272 panel on the S3's 16-bit RGB bus. no
+ * commands and no window here: the chip reads a whole frame out of memory all the time, so a strip is only
  * put in that frame. the frame lies in the PSRAM and goes out through two small buffers in the RAM
  * (esp_lcd's bounce buffers, what Elecrow's IDF examples do), which ride out what else the PSRAM is
  * busy with. with the code in the PSRAM too (sdkconfig.defaults.s3rgb) a write to the flash does not
@@ -35,11 +35,23 @@ static int s_profile, s_ready, s_flip;
 _Static_assert(GFX_PH % BOUNCE_ROWS == 0, "the frame's rows must divide by the bounce buffer's");
 
 /* the clocks round a row and a frame: the 5" panels' unless board.h names its own */
+#ifndef LCD_RGB_H_PULSE
+#define LCD_RGB_H_PULSE 4
+#endif
 #ifndef LCD_RGB_H_BACK
 #define LCD_RGB_H_BACK 8
 #endif
+#ifndef LCD_RGB_H_FRONT
+#define LCD_RGB_H_FRONT 8
+#endif
+#ifndef LCD_RGB_V_PULSE
+#define LCD_RGB_V_PULSE 4
+#endif
 #ifndef LCD_RGB_V_BACK
 #define LCD_RGB_V_BACK 8
+#endif
+#ifndef LCD_RGB_V_FRONT
+#define LCD_RGB_V_FRONT 8
 #endif
 
 /* the two colour orders, BOOT in the first seconds or the site: the sources name the pins of red
@@ -55,12 +67,12 @@ static void panel_up(void)
             .pclk_hz = LCD_RGB_HZ,
             .h_res = GFX_PW,
             .v_res = GFX_PH,
-            .hsync_pulse_width = 4,
+            .hsync_pulse_width = LCD_RGB_H_PULSE,
             .hsync_back_porch = LCD_RGB_H_BACK,
-            .hsync_front_porch = 8,
-            .vsync_pulse_width = 4,
+            .hsync_front_porch = LCD_RGB_H_FRONT,
+            .vsync_pulse_width = LCD_RGB_V_PULSE,
             .vsync_back_porch = LCD_RGB_V_BACK,
-            .vsync_front_porch = 8,
+            .vsync_front_porch = LCD_RGB_V_FRONT,
             .flags.pclk_active_neg = 1,
         },
         .data_width = 16,

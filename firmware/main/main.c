@@ -757,6 +757,8 @@ static const char *board_name(void)
     return "tab5";
 #elif RADAR_DISPLAY == DISPLAY_4827S043_480x272
     return "esp4827s043";
+#elif RADAR_DISPLAY == DISPLAY_CROW70_800x480
+    return "crow70";
 #else
     return "other";
 #endif
@@ -1020,10 +1022,12 @@ static void pick_screen(int screen, uint32_t now, const char *by)
     disp_profile(screen);
     store_save_screen(screen);
     s_screen = screen;
+#if RADAR_HAS_BUTTON
     ui_screen_name = disp_profile_name();
-    snprintf(s_ui.toast, sizeof s_ui.toast, "SCREEN %s", ui_screen_name);
+#endif
+    snprintf(s_ui.toast, sizeof s_ui.toast, "SCREEN %s", disp_profile_name());
     s_ui.toast_until = now + 3000u;
-    ESP_LOGI(TAG, "%s: the screen is now %s, saved", by, ui_screen_name);
+    ESP_LOGI(TAG, "%s: the screen is now %s, saved", by, disp_profile_name());
 }
 #endif
 
@@ -1076,8 +1080,8 @@ static void ui_task(void *arg)
     s_ui.map = &s_map;                                 // the fetch task makes it, the scope draws it
     ui_clock_us = now_us;                              // the layers get timed, the 10 s log says where it goes
     ui_version = FLIGHT_VERSION;                       // ABOUT says it, the note compares the site's with it
-#if LCD_PROFILES
-    ui_screen_name = disp_profile_name();              // the screen offers the other ones
+#if LCD_PROFILES && RADAR_HAS_BUTTON
+    ui_screen_name = disp_profile_name();              // the screen offers the other ones, by BOOT. none: the site does
 #endif
     button_init();
     esp_task_wdt_add(NULL);
