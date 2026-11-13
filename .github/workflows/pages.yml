@@ -11,7 +11,7 @@ name: Firmware and flasher site
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, tar1090-support ]
   workflow_dispatch:
 
 # each job asks for what it needs on top of this
@@ -120,7 +120,7 @@ jobs:
   site:
     name: Flasher site
     needs: [ firmware, web ]
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

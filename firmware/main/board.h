@@ -173,7 +173,7 @@
  * another runs 40. 30 asked, the SPI driver takes the nearest it can make below */
 #define LCD_SPI_HZ    (30 * 1000 * 1000)
 #define LCD_MADCTL    0xA0      // MY|MV, RGB: the landscape most of them use, the other is the screen turned over
-#define DISP_STRIP    24
+#define DISP_STRIP    8         // leave internal RAM for WiFi and TLS when fetching map tiles
 /* no inversion, every source agrees. RGB or BGR they do not: RGB in the maker's Arduino setup and
  * in most ports, BGR in its MicroPython demo. both are in the build, RGB first, BOOT in the first
  * seconds switches (lcd_spi.c) */
